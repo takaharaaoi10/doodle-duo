@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <meta name="theme-color" content="#6c5ce7" />
+  <title>Doodle Duo — Multiplayer Drawing Game</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap');
+    :root{--ink:#24223a;--purple:#6c5ce7;--purple2:#8b7cf6;--pink:#ff6b9d;--yellow:#ffd166;--mint:#53d6b4;--paper:#fffdf7;--line:#ded9f4;--shadow:0 12px 35px rgba(53,42,110,.16)}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;color:var(--ink);font-family:Nunito,system-ui,sans-serif;background:#f5f1ff;background-image:radial-gradient(#dcd4ff 1.2px,transparent 1.2px);background-size:22px 22px}
+    button,input{font:inherit} button{cursor:pointer} .hidden{display:none!important}
+    .shell{width:min(1180px,calc(100% - 24px));margin:auto;padding:18px 0 28px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:clamp(22px,4vw,34px)}.brand-badge{display:grid;place-items:center;width:50px;height:50px;background:var(--yellow);border:3px solid var(--ink);border-radius:16px;transform:rotate(-5deg);box-shadow:4px 4px 0 var(--ink)}
+    .card{background:rgba(255,253,247,.97);border:3px solid var(--ink);border-radius:24px;box-shadow:7px 7px 0 var(--ink)}
+    .btn{border:2.5px solid var(--ink);border-radius:13px;background:#fff;padding:11px 17px;font-weight:900;color:var(--ink);box-shadow:3px 3px 0 var(--ink);transition:.13s}.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}.btn.primary{background:var(--purple);color:#fff}.btn.pink{background:var(--pink);color:#fff}.btn.small{padding:8px 12px;font-size:14px}.btn:disabled{opacity:.45;cursor:not-allowed}
+    .home{max-width:830px;margin:40px auto;padding:clamp(22px,5vw,48px);text-align:center;position:relative;overflow:hidden}.home h1{font-size:clamp(42px,8vw,78px);line-height:.93;margin:12px 0;color:var(--purple);letter-spacing:-3px}.home .tagline{font-size:19px;margin:20px auto 30px;max-width:560px}.doodle{position:absolute;font-size:55px;opacity:.2;pointer-events:none}.d1{left:24px;top:20px;transform:rotate(-18deg)}.d2{right:24px;bottom:22px;transform:rotate(14deg)}
+    .home-actions{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch;gap:20px;text-align:left}.action-box{background:#fff;border:2px solid var(--line);border-radius:18px;padding:20px}.action-box h2{margin:0 0 12px;font-size:20px}.or{align-self:center;font-weight:900;background:var(--yellow);border:2px solid var(--ink);border-radius:50%;width:42px;height:42px;display:grid;place-items:center}
+    label{display:block;font-size:13px;font-weight:900;margin:10px 0 5px;text-transform:uppercase;letter-spacing:.5px}.field{width:100%;border:2.5px solid var(--ink);border-radius:12px;padding:12px;background:#fff;outline:none}.field:focus{box-shadow:0 0 0 4px #dcd4ff}.action-box .btn{width:100%;margin-top:14px}
+    .rules-link{margin-top:25px;background:none;border:0;text-decoration:underline;font-weight:800;color:var(--purple)}
+    .lobby{max-width:800px;margin:30px auto;padding:30px}.room-code{text-align:center;background:#eee9ff;border:2px dashed var(--purple);border-radius:17px;padding:16px;margin:18px 0}.room-code strong{display:block;font-size:42px;letter-spacing:9px;color:var(--purple)}.player-list{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}.player{padding:16px;background:#fff;border:2px solid var(--line);border-radius:15px;font-weight:900}.dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--mint);margin-right:8px}.lobby-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}.status{text-align:center;font-weight:800;color:#625b87;min-height:24px}
+    .game-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-bottom:12px}.score{display:flex;gap:8px}.score:last-child{justify-content:flex-end}.score-pill{background:#fff;border:2px solid var(--ink);padding:8px 12px;border-radius:14px;font-weight:900}.round-info{text-align:center}.round-info b{display:block;font-size:22px;color:var(--purple)}
+    .game-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:16px}.canvas-card{padding:12px}.prompt{text-align:center;min-height:52px;display:grid;place-items:center;font-weight:900;font-size:21px;background:#fff4bf;border:2px solid var(--ink);border-radius:14px;margin-bottom:10px}.prompt .secret{color:var(--pink);font-size:28px}.letter-hint{display:block;color:var(--purple);font-size:clamp(19px,3vw,28px);letter-spacing:3px;line-height:1.4;overflow-wrap:anywhere}.canvas-wrap{position:relative;width:100%;aspect-ratio:4/3;border:3px solid var(--ink);border-radius:15px;overflow:hidden;background:#fff;touch-action:none}.canvas-wrap canvas{width:100%;height:100%;display:block}.canvas-overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.88);text-align:center;padding:25px;font-size:26px;font-weight:900}
+    .tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}.color{width:31px;height:31px;border:2px solid var(--ink);border-radius:50%;padding:0}.color.active{box-shadow:0 0 0 3px var(--yellow);transform:scale(1.08)}.brush{accent-color:var(--purple);width:115px}
+    .side{display:flex;flex-direction:column;min-height:0}.chat{padding:14px;display:flex;flex-direction:column;height:100%;min-height:480px}.chat h3{margin:0 0 8px}.messages{flex:1;min-height:250px;max-height:430px;overflow:auto;background:#fff;border:2px solid var(--line);border-radius:13px;padding:10px}.msg{padding:7px 9px;border-radius:9px;margin-bottom:7px;background:#f3f0ff;overflow-wrap:anywhere}.msg.system{background:#fff2ba;font-weight:800}.msg.correct{background:#c9f7e9;font-weight:900}.guess-row{display:flex;gap:7px;margin-top:9px}.guess-row .field{min-width:0}.guess-row .btn{padding:10px}.timer{font-size:28px;font-weight:900;color:var(--pink)}
+    dialog{border:3px solid var(--ink);border-radius:22px;box-shadow:8px 8px 0 var(--ink);max-width:560px;width:calc(100% - 30px);padding:26px;color:var(--ink)}dialog::backdrop{background:rgba(31,27,61,.55)}dialog h2{margin-top:0;color:var(--purple)}dialog li{margin:8px 0}.modal-actions{text-align:right;margin-top:20px}
+    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:800;z-index:10;box-shadow:var(--shadow)}
+    .final{text-align:center;padding:30px}.final .trophy{font-size:80px}.final h2{font-size:40px;margin:0;color:var(--purple)}
+    @media(max-width:760px){.home-actions{grid-template-columns:1fr}.or{justify-self:center;margin:-7px 0}.game-layout{grid-template-columns:1fr}.chat{min-height:340px}.messages{max-height:220px}.game-top{grid-template-columns:1fr auto}.game-top .score:last-child{grid-column:1/-1;justify-content:center}.player-list{grid-template-columns:1fr}.shell{width:min(100% - 12px,1180px)}.canvas-card{padding:7px}.brand-badge{width:42px;height:42px}.game-screen header{margin-bottom:8px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header><div class="brand"><span class="brand-badge">✏️</span>Doodle Duo</div><button class="btn small" id="rulesBtn">How to play</button></header>
+
+    <section id="home" class="home card">
+      <span class="doodle d1">★</span><span class="doodle d2">〰</span>
+      <h1>Draw it.<br>Guess it!</h1>
+      <p class="tagline">A fast, silly drawing battle for two players on different devices.</p>
+      <div class="home-actions">
+        <div class="action-box"><h2>🎨 Create a room</h2><label for="createName">Your name</label><input id="createName" class="field" maxlength="16" placeholder="Picasso-ish"><button id="createBtn" class="btn primary">Create room</button></div>
+        <div class="or">OR</div>
+        <div class="action-box"><h2>🔑 Join a friend</h2><label for="joinName">Your name</label><input id="joinName" class="field" maxlength="16" placeholder="Guess Master"><label for="joinCode">Room code</label><input id="joinCode" class="field" maxlength="6" placeholder="ABC123" autocapitalize="characters"><button id="joinBtn" class="btn pink">Join room</button></div>
+      </div>
+      <button class="rules-link" id="rulesLink">Read the rules</button>
+    </section>
+
+    <section id="lobby" class="lobby card hidden">
+      <h2 style="text-align:center;margin:0">Waiting Room</h2>
+      <div class="room-code">Share this code<strong id="codeText">------</strong><button id="copyBtn" class="btn small">Copy code</button></div>
+      <div id="playerList" class="player-list"></div>
+      <p id="lobbyStatus" class="status">Waiting for another player…</p>
+      <div class="lobby-actions"><button id="startBtn" class="btn primary" disabled>Start game</button><button id="leaveLobbyBtn" class="btn">Leave</button></div>
+    </section>
+
+    <section id="game" class="game-screen hidden">
+      <div class="game-top">
+        <div class="score"><span class="score-pill" id="p1Score">Player 1: 0</span></div>
+        <div class="round-info"><span id="roundLabel">Round 1 of 5</span><b class="timer" id="timer">60</b></div>
+        <div class="score"><span class="score-pill" id="p2Score">Player 2: 0</span></div>
+      </div>
+      <div class="game-layout">
+        <div class="canvas-card card">
+          <div id="prompt" class="prompt">Get ready…</div>
+          <div class="canvas-wrap"><canvas id="canvas"></canvas><div id="canvasOverlay" class="canvas-overlay">Waiting for the host to start…</div></div>
+          <div id="tools" class="tools hidden">
+            <button class="color active" data-color="#24223a" style="background:#24223a" aria-label="Black" title="Black"></button>
+            <button class="color" data-color="#6b7280" style="background:#6b7280" aria-label="Gray" title="Gray"></button>
+            <button class="color" data-color="#ef3340" style="background:#ef3340" aria-label="Red" title="Red"></button>
+            <button class="color" data-color="#ff7a21" style="background:#ff7a21" aria-label="Orange" title="Orange"></button>
+            <button class="color" data-color="#ffcc00" style="background:#ffcc00" aria-label="Yellow" title="Yellow"></button>
+            <button class="color" data-color="#25b88a" style="background:#25b88a" aria-label="Green" title="Green"></button>
+            <button class="color" data-color="#15b8d6" style="background:#15b8d6" aria-label="Cyan" title="Cyan"></button>
+            <button class="color" data-color="#3478f6" style="background:#3478f6" aria-label="Blue" title="Blue"></button>
+            <button class="color" data-color="#7c4dff" style="background:#7c4dff" aria-label="Purple" title="Purple"></button>
+            <button class="color" data-color="#f04fa3" style="background:#f04fa3" aria-label="Pink" title="Pink"></button>
+            <button class="color" data-color="#8b572a" style="background:#8b572a" aria-label="Brown" title="Brown"></button>
+            <label style="margin:0">Size <input id="brush" class="brush" type="range" min="2" max="24" value="7"></label><button id="eraserBtn" class="btn small">Eraser</button><button id="undoBtn" class="btn small">Undo</button><button id="clearBtn" class="btn small">Clear</button>
+          </div>
+        </div>
+        <aside class="side"><div class="chat card"><h3>💬 Guesses</h3><div id="messages" class="messages" aria-live="polite"></div><form id="guessForm" class="guess-row"><input id="guessInput" class="field" maxlength="30" autocomplete="off" placeholder="Type your guess…"><button class="btn primary">Send</button></form></div></aside>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="rulesDialog"><h2>How to play</h2><ol><li>One player creates a room and shares the six-character code.</li><li>The artist gets a secret word and has 60 seconds to draw it—no letters or numbers!</li><li>The guesser sees blank lines showing the number of letters and types guesses while the picture appears live.</li><li>A correct guess gives the guesser 100 points and the artist 50 points. If time runs out, nobody scores.</li><li>Players swap roles each round. After five rounds, the highest score wins.</li></ol><div class="modal-actions"><button class="btn primary" id="closeRules">Got it!</button></div></dialog>
+  <dialog id="resultDialog"><div id="resultContent" class="final"></div></dialog>
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script>
+    const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+    const words=[
+      'pizza','rainbow','octopus','rocket','castle','banana','guitar','snowman','butterfly','volcano',
+      'robot','turtle','popcorn','cactus','donut','penguin','backpack','cupcake','airplane','dinosaur',
+      'camera','mermaid','sunflower','toothbrush','lighthouse','apple','watermelon','pineapple','strawberry','hamburger',
+      'taco','ice cream','pancakes','cookie','hot dog','spaghetti','avocado','carrot','sandwich','birthday cake',
+      'cat','dog','elephant','giraffe','monkey','shark','whale','flamingo','frog','ladybug',
+      'unicorn','dragon','owl','jellyfish','bee','crab','snail','hamster','seal','parrot',
+      'bicycle','train','sailboat','helicopter','skateboard','school bus','tractor','submarine','ambulance','hot air balloon',
+      'beach','mountain','island','waterfall','campfire','moon','cloud','tornado','desert','forest',
+      'umbrella','sunglasses','alarm clock','scissors','key','headphones','balloon','crown','treasure chest','snow globe',
+      'soccer ball','basketball','tennis racket','trophy','roller skate','kite','drum','microphone','piano','paintbrush',
+      'superhero','pirate','astronaut','chef','wizard','ghost','vampire','detective','cowboy','ninja'
+    ];
+    const state={isHost:false,myName:'',room:'',peer:null,conn:null,players:[],scores:[0,0],round:0,artist:0,word:'',usedWords:[],endsAt:0,timerId:null,strokes:[],current:null,gameStarted:false};
+    const screens=['home','lobby','game'];
+    function show(id){screens.forEach(x=>$('#'+x).classList.toggle('hidden',x!==id))}
+    function toast(t){$('#toast').textContent=t;$('#toast').classList.remove('hidden');setTimeout(()=>$('#toast').classList.add('hidden'),2200)}
+    function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+    function clean(s){return s.trim().replace(/[^a-zA-Z0-9 _-]/g,'').slice(0,16)}
+    function peerId(room){return 'doodle-duo-'+room.toLowerCase()}
+    function send(type,data={}){if(state.conn?.open)state.conn.send({type,...data})}
+    function addMsg(text,kind=''){const d=document.createElement('div');d.className='msg '+kind;d.textContent=text;$('#messages').append(d);$('#messages').scrollTop=$('#messages').scrollHeight}
+    function setPlayers(){$('#playerList').innerHTML=state.players.map((p,i)=>`<div class="player"><span class="dot"></span>${escapeHtml(p)} ${i===0?'👑':''}</div>`).join('');$('#startBtn').disabled=!(state.isHost&&state.players.length===2);$('#lobbyStatus').textContent=state.players.length===2?'Both players are ready!':'Waiting for another player…'}
+    function escapeHtml(s){return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+    function bindConnection(conn){state.conn=conn;conn.on('data',handle);conn.on('close',()=>{toast('The other player disconnected');endToHome()});conn.on('error',()=>toast('Connection problem—try again'))}
+    $('#createBtn').onclick=()=>{const name=clean($('#createName').value);if(!name)return toast('Enter your name first');state.isHost=true;state.myName=name;state.room=code();state.players=[name];$('#codeText').textContent=state.room;show('lobby');setPlayers();state.peer=new Peer(peerId(state.room));state.peer.on('connection',conn=>{if(state.conn){conn.close();return}bindConnection(conn);conn.on('open',()=>send('welcome',{host:name}));});state.peer.on('error',e=>{toast(e.type==='unavailable-id'?'Try creating a new room':'Could not connect')})};
+    $('#joinBtn').onclick=()=>{const name=clean($('#joinName').value),room=$('#joinCode').value.trim().toUpperCase();if(!name||room.length!==6)return toast('Enter your name and 6-character code');state.myName=name;state.room=room;state.isHost=false;state.players=[name];$('#codeText').textContent=room;show('lobby');state.peer=new Peer();state.peer.on('open',()=>{const conn=state.peer.connect(peerId(room),{reliable:true});bindConnection(conn);conn.on('open',()=>send('join',{name}))});state.peer.on('error',()=>{toast('Room not found. Check the code.');setTimeout(endToHome,1200)})};
+    function handle(m){
+      if(m.type==='welcome'){send('join',{name:state.myName})}
+      if(m.type==='join'&&state.isHost){state.players=[state.myName,clean(m.name)||'Player 2'];setPlayers();send('lobby',{players:state.players})}
+      if(m.type==='lobby'&&!state.isHost){state.players=m.players;setPlayers()}
+      if(m.type==='start'){state.players=m.players;beginLocal(m)}
+      if(m.type==='stroke'){state.strokes.push(m.stroke);drawStroke(m.stroke)}
+      if(m.type==='clear'){state.strokes=[];redraw()}
+      if(m.type==='undo'){state.strokes.pop();redraw()}
+      if(m.type==='guess'&&state.isHost)receiveGuess(m.name,m.text)
+      if(m.type==='chat')addMsg(m.text,m.kind)
+      if(m.type==='roundEnd')finishRoundLocal(m)
+      if(m.type==='nextRound')beginRoundLocal(m)
+      if(m.type==='final')showFinalLocal(m)
+      if(m.type==='rematchRequest'&&state.isHost){state.scores=[0,0];state.round=0;state.usedWords=[];send('rematch');startRound()}
+      if(m.type==='rematch'){state.scores=[0,0];state.round=0}
+    }
+    $('#startBtn').onclick=()=>{if(state.players.length<2)return;state.scores=[0,0];state.round=0;state.usedWords=[];state.gameStarted=true;startRound()};
+    function letterHint(word){return word.split(' ').map(part=>part.split('').map(()=>'_').join(' ')).join('   ')}
+    function startRound(){state.artist=state.round%2;const available=words.filter(w=>!state.usedWords.includes(w));state.word=available[Math.floor(Math.random()*available.length)];state.usedWords.push(state.word);state.endsAt=Date.now()+60000;const data={players:state.players,scores:state.scores,round:state.round,artist:state.artist,endsAt:state.endsAt,word:state.word,hint:letterHint(state.word)};const clientData={...data,word:state.artist===1?state.word:''};send(state.round===0?'start':'nextRound',clientData);state.round===0?beginLocal(data):beginRoundLocal(data)}
+    function beginLocal(m){show('game');beginRoundLocal(m)}
+    function beginRoundLocal(m){Object.assign(state,{players:m.players||state.players,scores:m.scores,round:m.round,artist:m.artist,endsAt:m.endsAt,word:state.isHost?m.word:(m.artist===1?m.word:'')});state.strokes=[];$('#messages').innerHTML='';resizeCanvas();redraw();updateHud();const myIndex=state.isHost?0:1,isArtist=myIndex===state.artist;$('#tools').classList.toggle('hidden',!isArtist);$('#guessForm').classList.toggle('hidden',isArtist);$('#canvasOverlay').classList.add('hidden');const hint=m.hint||letterHint(m.word||state.word);$('#prompt').innerHTML=isArtist?`Your word: <span class="secret">${escapeHtml(state.word)}</span>`:`${escapeHtml(state.players[state.artist])} is drawing… <span class="letter-hint" aria-label="${escapeHtml(hint)}">${escapeHtml(hint)}</span>`;addMsg(isArtist?'Draw the secret word!':'Guess as fast as you can!','system');clearInterval(state.timerId);state.timerId=setInterval(()=>{const left=Math.max(0,Math.ceil((state.endsAt-Date.now())/1000));$('#timer').textContent=left;if(left<=0&&state.isHost)endRound(false)},250)}
+    function updateHud(){$('#roundLabel').textContent=`Round ${state.round+1} of 5`;$('#p1Score').textContent=`${state.players[0]}: ${state.scores[0]}`;$('#p2Score').textContent=`${state.players[1]}: ${state.scores[1]}`}
+    function receiveGuess(name,text){send('chat',{text:`${name}: ${text}`});addMsg(`${name}: ${text}`);if(norm(text)===norm(state.word)){const guesser=state.artist===0?1:0;state.scores[guesser]+=100;state.scores[state.artist]+=50;endRound(true)}}
+    function norm(s){return s.toLowerCase().trim().replace(/[^a-z0-9]/g,'')}
+    $('#guessForm').onsubmit=e=>{e.preventDefault();const text=$('#guessInput').value.trim();if(!text)return;$('#guessInput').value='';if(state.isHost)receiveGuess(state.myName,text);else send('guess',{name:state.myName,text})}
+    function endRound(correct){clearInterval(state.timerId);const data={correct,word:state.word,scores:state.scores,round:state.round};send('roundEnd',data);finishRoundLocal(data)}
+    function finishRoundLocal(m){clearInterval(state.timerId);state.scores=m.scores;updateHud();$('#canvasOverlay').classList.remove('hidden');$('#canvasOverlay').innerHTML=m.correct?`🎉 Correct!<br><small>The word was “${escapeHtml(m.word)}”</small>`:`⏰ Time's up!<br><small>The word was “${escapeHtml(m.word)}”</small>`;if(m.correct)addMsg('Correct guess!','correct');if(state.isHost)setTimeout(()=>{state.round++;if(state.round>=5)showFinal();else startRound()},2800)}
+    function showFinal(){const data={players:state.players,scores:state.scores};send('final',data);showFinalLocal(data)}
+    function showFinalLocal(m){clearInterval(state.timerId);state.players=m.players;state.scores=m.scores;const winner=state.scores[0]===state.scores[1]?'It’s a tie!':`${state.players[state.scores[0]>state.scores[1]?0:1]} wins!`;$('#resultContent').innerHTML=`<div class="trophy">🏆</div><h2>${escapeHtml(winner)}</h2><p>${escapeHtml(state.players[0])} ${state.scores[0]} — ${state.scores[1]} ${escapeHtml(state.players[1])}</p><button class="btn primary" id="rematchBtn">Play again</button> <button class="btn" id="finalLeave">Leave</button>`;$('#resultDialog').showModal();$('#rematchBtn').onclick=()=>{$('#resultDialog').close();if(state.isHost){state.scores=[0,0];state.round=0;state.usedWords=[];send('rematch');startRound()}else send('rematchRequest')};$('#finalLeave').onclick=()=>{$('#resultDialog').close();endToHome()}}
+    $('#copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText(state.room);toast('Room code copied!')}catch{toast('Code: '+state.room)}};
+    function endToHome(){clearInterval(state.timerId);try{state.conn?.close();state.peer?.destroy()}catch{}Object.assign(state,{peer:null,conn:null,players:[],scores:[0,0],round:0,gameStarted:false});show('home')}
+    $('#leaveLobbyBtn').onclick=endToHome;
+    const canvas=$('#canvas'),ctx=canvas.getContext('2d');let drawing=false,color='#24223a',size=7,eraser=false;
+    function resizeCanvas(){const r=canvas.getBoundingClientRect(),ratio=devicePixelRatio||1;canvas.width=Math.round(r.width*ratio);canvas.height=Math.round(r.height*ratio);ctx.setTransform(ratio,0,0,ratio,0,0);ctx.lineCap='round';ctx.lineJoin='round'}
+    function pos(e){const r=canvas.getBoundingClientRect(),p=e.touches?.[0]||e;return{x:(p.clientX-r.left)/r.width,y:(p.clientY-r.top)/r.height}}
+    canvas.onpointerdown=e=>{if($('#tools').classList.contains('hidden'))return;drawing=true;canvas.setPointerCapture(e.pointerId);const p=pos(e);state.current={color:eraser?'#ffffff':color,size:+$('#brush').value,pts:[p]}}
+    canvas.onpointermove=e=>{if(!drawing)return;state.current.pts.push(pos(e));redraw();drawStroke(state.current)}
+    canvas.onpointerup=()=>{if(!drawing)return;drawing=false;state.strokes.push(state.current);send('stroke',{stroke:state.current});state.current=null}
+    function drawStroke(s){const r=canvas.getBoundingClientRect();ctx.strokeStyle=s.color;ctx.lineWidth=s.size;ctx.beginPath();s.pts.forEach((p,i)=>{const x=p.x*r.width,y=p.y*r.height;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});if(s.pts.length===1){ctx.lineTo(s.pts[0].x*r.width+.1,s.pts[0].y*r.height+.1)}ctx.stroke()}
+    function redraw(){const r=canvas.getBoundingClientRect();ctx.clearRect(0,0,r.width,r.height);state.strokes.forEach(drawStroke)}
+    $$('.color').forEach(b=>b.onclick=()=>{$$('.color').forEach(x=>x.classList.remove('active'));b.classList.add('active');color=b.dataset.color;eraser=false;$('#eraserBtn').textContent='Eraser'});$('#eraserBtn').onclick=()=>{eraser=!eraser;$('#eraserBtn').textContent=eraser?'Drawing':'Eraser'};$('#clearBtn').onclick=()=>{state.strokes=[];redraw();send('clear')};$('#undoBtn').onclick=()=>{state.strokes.pop();redraw();send('undo')};
+    addEventListener('resize',()=>{if(!$('#game').classList.contains('hidden')){resizeCanvas();redraw()}});
+    $('#rulesBtn').onclick=$('#rulesLink').onclick=()=>$('#rulesDialog').showModal();$('#closeRules').onclick=()=>$('#rulesDialog').close();
+    $('#joinCode').oninput=e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  </script>
+</body>
+</html>
